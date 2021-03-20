@@ -18,12 +18,14 @@ import WebsitePage from "./views/WebsitePage";
 import DashboardPage from "./views/DashboardPage";
 import TermsPage from "./views/TermsPage";
 import ConfirmAccountPage from "./views/ConfirmAccountPage";
+import ExecPage from "./views/ExecPage";
 
 import "./index.css";
 
 const routing = (
   <Router>
     <Switch>
+      <Route path="/exec" component={ExecPage} />
       <Route exact path="/" component={WebsitePage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
