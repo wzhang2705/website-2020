@@ -11,38 +11,26 @@ import LoadingSpinner from "../../LoadingSpinner";
 
 const ModalDisplay = ({ handleClose, show, children }) => {
     const showHideClassName = show ? "modal display-block" : "modal display-none";
-    let id = useParams().id;
-    let name = '';
+    let [ id ] = useState(useParams().id);
+    let [ name, setName ] = useState();
     let [ loading, setLoading ] = useState(true);
 
-    // useEffect(async () => {
-    //     await getApplication(id,
-    //         (response) => {
-    //             console.log(response);
-    //             name = response.first_name + ' ' + response.last_name;
-    //             console.log(name);
-    //         }, () => {
-    //             console.log("FAILURE");
-    //         }
-    //     );
-    // });
-
-    async function asyncCall() {
-        await getApplication(id,
+    useEffect(() => {
+        getApplication(id,
             (response) => {
-                name = response.first_name + ' ' + response.last_name;
+                console.log(response);
+                setName(response.first_name + ' ' + response.last_name);
                 setLoading(false);
             }, () => {
                 console.log("FAILURE");
+                setLoading(false);
             }
         );
-    }
-    asyncCall();
+    });
 
     if (loading) {
         return (<LoadingSpinner />)
     } else {
-        console.log(name);
     return (
         <div className={showHideClassName}>
             <section className="modal-main">
