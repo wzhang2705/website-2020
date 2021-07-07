@@ -1,125 +1,94 @@
 import "./modal.scss";
+import { withRouter } from "react-router";
 import images from "../../../assets/icons/modal";
 import React, { Component } from "react";
+import ModalHeader from '../ModalHeader/index';
+import ModalContact from '../ModalContact/index';
+import ModalBasicInfo from '../ModalBasicInfo/index';
+import ModalApplicationInfo from '../ModalApplicationInfo';
+import { useParams } from 'react-router-dom';
+import { getApplication } from '../../../utils/API/index.js';
+import LoadingSpinner from "../../LoadingSpinner";
+import { ResponsiveEmbed } from "react-bootstrap";
 
-const ModalDisplay = ({ handleClose, show, children }) => {
-    const showHideClassName = show ? "modal display-block" : "modal display-none";
+class ModalDisplay extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            id: this.props.match.params.id,
+            dataRetrieved: true,
+        };
+    };
 
-    return (
-        <div className={showHideClassName}>
-            <section className="modal-main">
-                <div className="header">
-                    <h1>Dunja Tomic</h1>
-                    <div class="status">
-                        <div class="dropdown">
-                            <span>Pending</span>
-                            <div class="arrow"></div>
-                            <div class="dropdown-content">
-                                <ul>
-                                    <li>
-                                        Approved
-                                    </li>
-                                    <li>
-                                        Rejected
-                                    </li>
-                                </ul>
+    hideModal = () => {
+        this.setState({ show: false });
+        this.props.history.push('/exec');
+    };
+
+    componentDidMount() {
+        getApplication(this.state.id,
+        (response) => {
+            this.setState({
+                userName: response.first_name ?? 'N/A' + ' ' + response.last_name ?? 'N/A',
+                userSchoolInfo: response.school ?? 'N/A' + ' - ' + response.degree ?? 'N/A',
+                userBirthDate: response.birth_date ?? 'N/A',
+                userNextCoop: response.coop_terms[0] ?? 'N/A',
+                userHowHeard: response.how_heard ?? 'N/A',
+                userGithub: response.github_url ?? 'N/A',
+                userDribbble: response.dribbble_url ?? 'N/A',
+                userResume: response.link_to_resume ?? 'N/A',
+                userLinkedIn: response.linkedin_url ?? 'N/A',
+                userPersonalSite: response.personal_url ?? 'N/A',
+                userPhoneNumber: response.phone_number ?? 'N/A',
+                userWhyGoldenhack: response.why_goldenhack ?? 'N/A',
+
+                error: false,
+                dataRetrieved: true,
+            });
+        }, () => {
+            console.log("API FAILURE");
+            this.setState({
+                userName: 'N/A',
+                userSchoolInfo: 'N/A',
+                userBirthDate: 'N/A',
+                userNextCoop:'N/A',
+                userHowHeard: 'N/A',
+                userGithub:'N/A',
+                userDribbble:'N/A',
+                userResume: 'N/A',
+                userLinkedIn: 'N/A',
+                userPersonalSite: 'N/A',
+                userPhoneNumber: 'N/A',
+                userWhyGoldenhack: 'N/A',
+
+                error: true,
+                dataRetrieved: true,
+            });
+        });
+    };
+
+    render() {
+        if (!this.state.dataRetrieved) {
+            return (<LoadingSpinner />)
+        } else {
+            return (
+                <div className="modal display-block">
+                    <section className="modal-main">
+                        <ModalHeader name={this.state.userName} handleClose={this.props.handleClose}/>
+                        <div className="info-display">
+                            <div className="info-column left">
+                                <ModalContact email={this.state.id} phoneNumber={this.state.userPhoneNumber}/>
+                                <ModalBasicInfo schoolInfo={this.state.userSchoolInfo}/> {/* add year */}
+                            </div>
+                            <div className="info-column right">
+                                <ModalApplicationInfo userWhyGoldenhack={this.state.userWhyGoldenhack}/>
                             </div>
                         </div>
-                        <button>Change Status</button>
-                    </div>
-                    <div class="button">
-                        <div class="expand-button" onClick={handleClose}></div>
-                        <div class="close-button" onClick={handleClose}></div>
-                    </div>
-                </div>
-                <div className="info-display">
-                    <div class="info-column left">
-                        <div class="info-box">
-                            <h1>Contact Info</h1>
-                            <div class="label">
-                                <div>
-                                    <img src={images.email}/>
-                                </div>
-                                <div>
-                                    <p>dunja.tomic@thegoldenhack.ca</p>
-                                </div>
-                            </div>
-                            <div class="label">
-                                <div>
-                                    <img src={images.phone}/>
-                                </div>
-                                <div>
-                                    <p>+1 647 123 456</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="info-box">
-                            <h1>Basic Info</h1>
-                            <div class="label">
-                                <div>
-                                    <img src={images.school}/>
-                                </div>
-                                <div>
-                                    <p>University of Waterloo - Computer Science</p>
-                                    <p>Class of 2022</p>
-                                </div>
-                            </div>
-                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                                sed diam nonumy eirmod tempor invidunt ut labore et dolore 
-                                magna aliquyam erat, sed diam voluptua. At vero eos et accusam 
-                                et justo duo dolores et ea rebum. Stet clita kasd gubergren, no 
-                                sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum 
-                                dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
-                                tempor invidunt ut labore et dolore magna aliquyam erat, sed diam 
-                                voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
-                                Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum 
-                                dolor sit amet.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="info-column right">
-                        <div class="info-box">
-                            <h1>Application Info</h1>
-                            <h2>Why do you want to attend The Goldenhack?</h2>
-                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                                sed diam nonumy eirmod tempor invidunt ut labore et dolore 
-                                magna aliquyam erat, sed diam voluptua. At vero eos et accusam 
-                                et justo duo dolores et ea rebum. Stet clita kasd gubergren, no 
-                                sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum 
-                                dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
-                                tempor invidunt ut labore et dolore magna aliquyam erat, sed diam 
-                                voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
-                                Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum 
-                                dolor sit amet.</p>
-                            <h2>This is the second question?</h2>
-                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                                sed diam nonumy eirmod tempor invidunt ut labore et dolore 
-                                magna aliquyam erat, sed diam voluptua. At vero eos et accusam 
-                                et justo duo dolores et ea rebum. Stet clita kasd gubergren, no 
-                                sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum 
-                                dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
-                                tempor invidunt ut labore et dolore magna aliquyam erat, sed diam 
-                                voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
-                                Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum 
-                                dolor sit amet.</p>
-                            <h2>This is the second question? no it isn’t. It’s the third?</h2>
-                            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                                sed diam nonumy eirmod tempor invidunt ut labore et dolore 
-                                magna aliquyam erat, sed diam voluptua. At vero eos et accusam 
-                                et justo duo dolores et ea rebum. Stet clita kasd gubergren, no 
-                                sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum 
-                                dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod 
-                                tempor invidunt ut labore et dolore magna aliquyam erat, sed diam 
-                                voluptua. At vero eos et accusam et justo duo dolores et ea rebum. 
-                                Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum 
-                                dolor sit amet.</p>
-                        </div>
-                    </div>
-                </div>
-                {/*children*/}
-            </section>
-        </div>
-    );
+                    </section>
+                </div> 
+            );
+        }
+    }
 };
 
-export default ModalDisplay
+export default withRouter(ModalDisplay);
